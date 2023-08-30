@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global temp</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas id="chart" width="800" height="400">
+
+    </canvas>
+    <script>
+        
+        chartIt();
+        
+
+        async function chartIt() {
+            const data = await getData();
+            const ctx = document.getElementById('chart');
+        
+      
+            new Chart(ctx, {
+            type: 'line',
+            data: {
+            labels: data.xs,
+            datasets: [
+                {
+                label: "Global Average",
+                data: data.ys,
+                borderColor: 'rgba(99, 132, 255, 1)',
+                backgroundColor: 'rgba(99, 132, 255, 0.5)',
+                borderWidth: 1,
+                
+            },
+            {
+                label: "Northern Hemisphere",
+                data: data.zs,
+                borderColor: 'rgba(99, 255, 132, 1)',
+                backgroundColor: 'rgba(99, 255, 132, 0.5)',
+                borderWidth: 1,
+            },
+            {
+                label: "Southers Hemisphere",
+                data: data.ss,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderWidth: 1,
+            }
+
+            ]
+            },
+            options: {}
+        });
+        }
+
+
+        getData();
+
+        async function getData() {
+            const xs = [];
+            const ys = [];
+            const zs = [];
+            const ss = [];
+
+            const response = await fetch("ZonAnn.Ts+dSST.csv");
+            const data = await response.text();
+            
+
+
+            const table = data.split('\n').slice(1);
+            table.forEach(row => {
+                const columns = row.split(',');
+                const year = columns[0];
+                xs.push(year);
+                const Gtemp = columns[1];
+                ys.push(parseFloat(Gtemp) + 14);
+                const Nhem = columns[2];
+                zs.push(parseFloat(Nhem) + 14);
+                const Shem = columns[3];
+                ss.push(parseFloat(Shem) + 14);
+                
+            });
+            return { xs, ys, zs, ss};
+        }
+        
+        // Data from https://data.giss.nasa.gov/gistemp/
+        // Global mean: https://earthobservatory.nasa.gov/world-of-change/global-temperatures
+    </script>
+</body>
+</html>
